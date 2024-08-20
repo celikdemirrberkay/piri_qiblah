@@ -1,7 +1,7 @@
 name: piri_qiblah
 description: "Extension for Qiblah way"
 version: 0.0.1
-homepage:
+homepage: https://github.com/celikdemirrberkay/piri_qiblah
 
 environment:
   sdk: ^3.5.0
@@ -10,6 +10,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+
+  # Sensor Plugin
+  sensors_plus: ^6.0.1
 
 dev_dependencies:
   flutter_test:
