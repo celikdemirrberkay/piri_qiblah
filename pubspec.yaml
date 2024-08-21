@@ -14,6 +14,9 @@ dependencies:
   # Qiblah Matematical Calculation
   flutter_qiblah: ^3.0.3
 
+  # SVG Image
+  flutter_svg: ^2.0.10+1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
