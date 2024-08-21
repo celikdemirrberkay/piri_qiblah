@@ -11,8 +11,8 @@ dependencies:
   flutter:
     sdk: flutter
 
-  # Sensor Plugin
-  sensors_plus: ^6.0.1
+  # Qiblah Matematical Calculation
+  flutter_qiblah: ^3.0.3
 
 dev_dependencies:
   flutter_test:
