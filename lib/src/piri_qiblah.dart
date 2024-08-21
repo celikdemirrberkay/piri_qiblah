@@ -142,6 +142,8 @@ class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin {
         : _specialErrorMessage('Waiting for permission ...');
   }
 
+  /// Stack view for needle and background compass
+  /// If you want to use custom assets, you can pass them as a parameter.
   Widget _stack() {
     return Stack(
       children: [
