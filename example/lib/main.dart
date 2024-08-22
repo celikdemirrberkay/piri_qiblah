@@ -33,19 +33,15 @@ class MyApp extends StatelessWidget {
       ),
       home: Scaffold(
         appBar: AppBar(title: const Text('Piri Qiblah')),
-        body: const SafeArea(
+        body: SafeArea(
           child: SizedBox.expand(
             child: Column(
               children: [
-                Spacer(flex: 30),
-                Icon(Icons.navigation),
-                Expanded(
-                  flex: 40,
-                  child: PiriQiblah(
-                    useDefaultAssets: true,
-                  ),
+                PiriQiblah(
+                  useDefaultAssets: false,
+                  customBackgroundCompass: SvgPicture.asset('assets/error.svg'),
+                  customNeedle: const Icon(Icons.abc),
                 ),
-                Spacer(flex: 30),
               ],
             ),
           ),
@@ -65,11 +61,13 @@ final class PiriQiblah extends StatefulWidget {
     this.customBackgroundCompass,
     this.loadingIndicator,
     this.specialErrorWidget,
+    this.waitingForPermissionWidget,
+    this.compassSize,
     super.key,
   });
 
   /// If you pass true, default assets will be used
-  /// If you have a custom needle or background compass view, you can pass them false
+  /// If you have a custom needle or background compass view, you can pass false
   final bool useDefaultAssets;
 
   /// Custom needle view
@@ -87,6 +85,13 @@ final class PiriQiblah extends StatefulWidget {
   /// While the stream is on error, the value you give appears on the screen.
   /// If null is returned, default text is used.
   final Widget? specialErrorWidget;
+
+  /// Widget to be displayed while waiting for permission.
+  /// You can customize with this parameter
+  final Widget? waitingForPermissionWidget;
+
+  /// The height of the widget, whether custom or default
+  final double? compassSize;
 
   @override
   // ignore: library_private_types_in_public_api
@@ -142,11 +147,17 @@ class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin {
   @override
   Future<void> didChangeDependencies() async {
     super.didChangeDependencies();
+
+    /// Check location permission for qiblah if it is granted
+    /// isAccessGranted is set to true, otherwise it is set to false.
     isAccessGranted = await checkLocationPermissionForQiblah();
     if (isAccessGranted == false) {
+      /// If isAccessGranted is false, request location permission for qiblah
       await requestLocationPermissionForQiblah();
       isAccessGranted = await checkLocationPermissionForQiblah();
     }
+
+    /// Then update the screen
     setState(() {});
   }
 
@@ -158,7 +169,7 @@ class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin {
             builder: (context, snapshot) {
               switch (snapshot.connectionState) {
                 case ConnectionState.none:
-                  return _specialErrorMessage('Something went wrong');
+                  return _errorWidget();
                 case ConnectionState.waiting:
                   return _loadingIndicator();
                 case ConnectionState.active:
@@ -185,55 +196,103 @@ class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin {
                     return _stack();
                   }
                 case ConnectionState.done:
-                  return _specialErrorMessage('Something went wrong');
+                  return _errorWidget();
               }
             },
           )
-        : _specialErrorMessage('Waiting for permission ...');
+
+        /// If the location permission is not granted, the waiting for permission widget is displayed.
+        : _waitingForPermissionWidget();
   }
 
+  /// Stack view for needle and background compass
+  /// If you want to use custom assets, you can pass them as a parameter.
   Widget _stack() {
-    return Stack(
-      children: [
-        AnimatedBuilder(
-          animation: animationForBackgroundCompass!,
-          builder: (context, child) => Transform.rotate(
-            angle: animationForBackgroundCompass!.value,
+    return SizedBox(
+      height: widget.compassSize ?? 300,
+      width: widget.compassSize ?? 300,
+      child: Stack(
+        children: [
+          _backgroundCompassWidget(),
+          _qiblahNeedleWidget(),
+        ],
+      ),
+    );
+  }
+
+  /// Needle view
+  Widget _qiblahNeedleWidget() {
+    return AnimatedBuilder(
+      animation: animationForNeedle!,
+      builder: (context, child) => Transform.rotate(
+        angle: animationForNeedle!.value,
+        child: Center(
+          child: widget.useDefaultAssets
+              ? Icon(
+                  Icons.navigation,
+                  size: (widget.compassSize ?? 300) / 3,
+                  color: Colors.green,
+                )
+              : widget.customNeedle,
+        ),
+      ),
+    );
+  }
+
+  /// Background compass view
+  Widget _backgroundCompassWidget() {
+    return AnimatedBuilder(
+      animation: animationForBackgroundCompass!,
+      builder: (context, child) => Transform.rotate(
+          angle: animationForBackgroundCompass!.value,
+          child: SizedBox.expand(
             child: widget.useDefaultAssets
-                ? Center(
-                    child: SizedBox(
-                      height: 300,
-                      width: 300,
-                      child: SvgPicture.asset('assets/compass.svg'),
-                    ),
+                ? SvgPicture.asset(
+                    _PiriQiblahAssetPath.defaultCompassSvgPath.path,
                   )
                 : widget.customBackgroundCompass,
-          ),
-        ),
-        AnimatedBuilder(
-          animation: animationForNeedle!,
-          builder: (context, child) => Transform.rotate(
-            angle: animationForNeedle!.value,
-            child: Center(
-              child: widget.useDefaultAssets
-                  ? const Icon(
-                      Icons.navigation,
-                      size: 100,
-                      color: Colors.green,
-                    )
-                  : widget.customNeedle,
-            ),
-          ),
-        ),
-      ],
+          )),
     );
   }
 
   /// Loading indicator
-  Widget _loadingIndicator() => widget.loadingIndicator ?? const Center(child: CircularProgressIndicator());
+  Widget _loadingIndicator() =>
+
+      /// Special loading indicator
+      widget.loadingIndicator ??
+
+      /// Default loading indicator
+      const Center(
+        child: CircularProgressIndicator(),
+      );
 
   /// Exception message
-  Widget _specialErrorMessage(String message) => widget.specialErrorWidget ?? Text(message);
+  Widget _errorWidget() =>
+
+      /// Special error widget
+      widget.specialErrorWidget ??
+
+      /// Default error widget
+      Column(
+        children: [
+          SvgPicture.asset(_PiriQiblahAssetPath.defaultErrorSvgPath.path),
+          const Text('Something went wrong!'),
+        ],
+      );
+
+  /// Waiting for permission widget
+  Widget _waitingForPermissionWidget() =>
+
+      /// Special waiting for permission widget
+      widget.waitingForPermissionWidget ??
+
+      /// Default waiting for permission widget
+      Column(
+        children: [
+          SvgPicture.asset(_PiriQiblahAssetPath.defaultWaitingForLocationSvgPath.path),
+          const Text('Waiting for permission ...'),
+        ],
+      );
 
   /// Request location permission for qiblah
   Future<void> requestLocationPermissionForQiblah() async {
@@ -262,4 +321,21 @@ class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin {
 extension AngleConversion on double {
   double toRadians() => this * pi / 180;
   double toDegrees() => this * 180 / pi;
+}
+
+/// Packages default asset paths
+enum _PiriQiblahAssetPath {
+  /// Default compass svg asset paths
+  defaultCompassSvgPath('assets/compass.svg'),
+
+  /// Default error svg asset paths
+  defaultErrorSvgPath('assets/error.svg'),
+
+  /// Default waiting for location svg asset paths
+  defaultWaitingForLocationSvgPath('assets/waiting_for_location.svg');
+
+  /// Path parameter
+  final String path;
+
+  const _PiriQiblahAssetPath(this.path);
 }
