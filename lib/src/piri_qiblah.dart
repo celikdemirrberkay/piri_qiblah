@@ -5,7 +5,8 @@ import 'package:flutter_qiblah/flutter_qiblah.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:geolocator/geolocator.dart';
 
-/// [PiriQiblah] is a widget package that shows the qibla direction to be used in "Piri Medya" projects.
+/// [PiriQiblah] is a widget package that shows the qibla direction to be used in
+/// "Piri Medya" projects.
 @immutable
 final class PiriQiblah extends StatefulWidget {
   ///
@@ -17,10 +18,11 @@ final class PiriQiblah extends StatefulWidget {
     this.specialErrorWidget,
     this.waitingForPermissionWidget,
     this.compassSize,
+    this.defaultNeedleColor,
     super.key,
   });
 
-  /// If you pass true, default assets will be used
+  /// If you pass true, default assets will be used.
   /// If you have a custom needle or background compass view, you can pass false
   final bool useDefaultAssets;
 
@@ -44,8 +46,12 @@ final class PiriQiblah extends StatefulWidget {
   /// You can customize with this parameter
   final Widget? waitingForPermissionWidget;
 
-  /// The height of the widget, whether custom or default
+  /// The height of the widget, whether custom or default.
+  /// If you don't pass a value, the default value is 300.
   final double? compassSize;
+
+  /// Default needle color
+  final Color? defaultNeedleColor;
 
   @override
   // ignore: library_private_types_in_public_api
@@ -56,11 +62,11 @@ class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin {
   bool isAccessGranted = false;
 
   /// Animation properties for needles
-  late Animation<double>? animationForNeedle;
+  late Animation<double>? _animationForNeedle;
   late AnimationController? _animationControllerForNeedle;
 
   /// Animation properties for background compass view
-  late Animation<double>? animationForBackgroundCompass;
+  late Animation<double>? _animationForBackgroundCompass;
   late AnimationController? _animationControllerForBackgroundCompass;
 
   /// Begin tween values
@@ -74,7 +80,7 @@ class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin {
       vsync: this,
       duration: const Duration(milliseconds: 500),
     );
-    animationForNeedle = Tween<double>(
+    _animationForNeedle = Tween<double>(
       begin: 0.0,
       end: 360.0,
     ).animate(_animationControllerForNeedle!);
@@ -84,7 +90,7 @@ class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin {
       vsync: this,
       duration: const Duration(seconds: 500),
     );
-    animationForBackgroundCompass = Tween<double>(
+    _animationForBackgroundCompass = Tween<double>(
       begin: 0.0,
       end: 0.0,
     ).animate(_animationControllerForBackgroundCompass!);
@@ -124,14 +130,19 @@ class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin {
               switch (snapshot.connectionState) {
                 case ConnectionState.none:
                   return _errorWidget();
+                case ConnectionState.done:
+                  return _errorWidget();
                 case ConnectionState.waiting:
                   return _loadingIndicator();
                 case ConnectionState.active:
+                  // If there is an error, the error widget is displayed.
                   if (snapshot.hasError) {
-                    return Text(snapshot.error.toString());
-                  } else {
+                    return _errorWidget();
+                  }
+                  // If there is no error, the compass view is displayed.
+                  else {
                     /// Animation properties for needle view
-                    animationForNeedle = Tween(
+                    _animationForNeedle = Tween(
                       begin: beginForNeedle,
                       end: (snapshot.data!.qiblah).toRadians() * -1,
                     ).animate(_animationControllerForNeedle!);
@@ -139,7 +150,7 @@ class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin {
                     _animationControllerForNeedle!.forward(from: 0);
 
                     /// Animation properties for background compass view
-                    animationForBackgroundCompass = Tween(
+                    _animationForBackgroundCompass = Tween(
                       begin: (snapshot.data!.direction).toRadians() * -1,
                       end: 360.0,
                     ).animate(_animationControllerForBackgroundCompass!);
@@ -149,8 +160,6 @@ class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin {
                     /// Return the compass view
                     return _stack();
                   }
-                case ConnectionState.done:
-                  return _errorWidget();
               }
             },
           )
@@ -177,15 +186,15 @@ class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin {
   /// Needle view
   Widget _qiblahNeedleWidget() {
     return AnimatedBuilder(
-      animation: animationForNeedle!,
+      animation: _animationForNeedle!,
       builder: (context, child) => Transform.rotate(
-        angle: animationForNeedle!.value,
+        angle: _animationForNeedle!.value,
         child: Center(
           child: widget.useDefaultAssets
               ? Icon(
                   Icons.navigation,
                   size: (widget.compassSize ?? 300) / 3,
-                  color: Colors.green,
+                  color: widget.defaultNeedleColor,
                 )
               : widget.customNeedle,
         ),
@@ -196,16 +205,17 @@ class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin {
   /// Background compass view
   Widget _backgroundCompassWidget() {
     return AnimatedBuilder(
-      animation: animationForBackgroundCompass!,
+      animation: _animationForBackgroundCompass!,
       builder: (context, child) => Transform.rotate(
-          angle: animationForBackgroundCompass!.value,
-          child: SizedBox.expand(
-            child: widget.useDefaultAssets
-                ? SvgPicture.asset(
-                    _PiriQiblahAssetPath.defaultCompassSvgPath.path,
-                  )
-                : widget.customBackgroundCompass,
-          )),
+        angle: _animationForBackgroundCompass!.value,
+        child: SizedBox.expand(
+          child: widget.useDefaultAssets
+              ? SvgPicture.asset(
+                  _PiriQiblahAssetPath.defaultCompassSvgPath.path,
+                )
+              : widget.customBackgroundCompass,
+        ),
+      ),
     );
   }
 
@@ -213,39 +223,45 @@ class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin {
   Widget _loadingIndicator() =>
 
       /// Special loading indicator
-      widget.loadingIndicator ??
+      SizedBox(
+        height: (widget.compassSize ?? 300) / 5,
+        width: (widget.compassSize ?? 300) / 5,
+        child: widget.loadingIndicator ??
 
-      /// Default loading indicator
-      const Center(
-        child: CircularProgressIndicator(),
+            /// Default loading indicator
+            const Center(
+              child: CircularProgressIndicator(),
+            ),
       );
 
   /// Exception message
-  Widget _errorWidget() =>
+  Widget _errorWidget() => SizedBox(
+        height: (widget.compassSize ?? 300) / 2,
+        width: (widget.compassSize ?? 300) / 2,
+        child: widget.specialErrorWidget ??
 
-      /// Special error widget
-      widget.specialErrorWidget ??
-
-      /// Default error widget
-      Column(
-        children: [
-          SvgPicture.asset(_PiriQiblahAssetPath.defaultErrorSvgPath.path),
-          const Text('Something went wrong!'),
-        ],
+            /// Default error widget
+            Column(
+              children: [
+                SvgPicture.asset(_PiriQiblahAssetPath.defaultErrorSvgPath.path),
+                const Text('Something went wrong!'),
+              ],
+            ),
       );
 
   /// Waiting for permission widget
-  Widget _waitingForPermissionWidget() =>
+  Widget _waitingForPermissionWidget() => SizedBox(
+        height: (widget.compassSize ?? 300) / 2,
+        width: (widget.compassSize ?? 300) / 2,
+        child: widget.waitingForPermissionWidget ??
 
-      /// Special waiting for permission widget
-      widget.waitingForPermissionWidget ??
-
-      /// Default waiting for permission widget
-      Column(
-        children: [
-          SvgPicture.asset(_PiriQiblahAssetPath.defaultWaitingForLocationSvgPath.path),
-          const Text('Waiting for permission ...'),
-        ],
+            /// Default waiting for permission widget
+            Column(
+              children: [
+                SvgPicture.asset(_PiriQiblahAssetPath.defaultWaitingForLocationSvgPath.path),
+                const Text('Waiting for permission ...'),
+              ],
+            ),
       );
 
   /// Request location permission for qiblah
@@ -280,13 +296,13 @@ extension AngleConversion on double {
 /// Packages default asset paths
 enum _PiriQiblahAssetPath {
   /// Default compass svg asset paths
-  defaultCompassSvgPath('lib/assets/compass.svg'),
+  defaultCompassSvgPath('packages/piri_qiblah/lib/assets/compass.svg'),
 
   /// Default error svg asset paths
-  defaultErrorSvgPath('lib/assets/error.svg'),
+  defaultErrorSvgPath('packages/piri_qiblah/lib/assets/error.svg'),
 
   /// Default waiting for location svg asset paths
-  defaultWaitingForLocationSvgPath('lib/assets/waiting_for_location.svg');
+  defaultWaitingForLocationSvgPath('packages/piri_qiblah/lib/assets/waiting_for_location.svg');
 
   /// Path parameter
   final String path;

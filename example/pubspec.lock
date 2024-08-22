@@ -272,6 +272,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.0.2"
+  piri_qiblah:
+    dependency: "direct main"
+    description:
+      path: ".."
+      relative: true
+    source: path
+    version: "0.0.1"
   plugin_platform_interface:
     dependency: transitive
     description:

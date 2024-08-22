@@ -32,6 +32,8 @@ dependencies:
     sdk: flutter
   flutter_svg: ^2.0.10+1
   flutter_qiblah: ^3.0.3
+  piri_qiblah:
+    path: ../
 
 
 
@@ -65,6 +67,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/
+    - packages/piri_qiblah/lib/assets/
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
