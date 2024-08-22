@@ -40,7 +40,9 @@ class MyApp extends StatelessWidget {
                   customBackgroundCompass: SvgPicture.asset('assets/test_compass.svg'),
                   customNeedle: SvgPicture.asset('assets/test_needle.svg'),
                 ),
-                const SizedBox(height: 40),
+                const SizedBox(height: 30),
+                Divider(),
+                const SizedBox(height: 30),
                 const Text('Piri Qiblah With Default Assets'),
                 const PiriQiblah(
                   useDefaultAssets: true,

@@ -171,15 +171,23 @@ class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin {
   /// Stack view for needle and background compass
   /// If you want to use custom assets, you can pass them as a parameter.
   Widget _stack() {
-    return SizedBox(
-      height: widget.compassSize ?? 300,
-      width: widget.compassSize ?? 300,
-      child: Stack(
-        children: [
-          _backgroundCompassWidget(),
-          _qiblahNeedleWidget(),
-        ],
-      ),
+    return Column(
+      children: [
+        Icon(
+          Icons.navigation,
+          size: (widget.compassSize ?? 300) / 15,
+        ),
+        SizedBox(
+          height: widget.compassSize ?? 300,
+          width: widget.compassSize ?? 300,
+          child: Stack(
+            children: [
+              _backgroundCompassWidget(),
+              _qiblahNeedleWidget(),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -257,9 +265,10 @@ class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin {
 
             /// Default waiting for permission widget
             Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 SvgPicture.asset(_PiriQiblahAssetPath.defaultWaitingForLocationSvgPath.path),
-                const Text('Waiting for permission ...'),
+                FittedBox(child: const Text('Waiting for permission ...')),
               ],
             ),
       );
