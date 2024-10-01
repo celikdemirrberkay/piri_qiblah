@@ -1,6 +1,6 @@
 name: piri_qiblah
 description: "Extension for Qiblah way"
-version: 0.0.1
+version: 0.0.2
 homepage: https://github.com/celikdemirrberkay/piri_qiblah
 
 environment:
@@ -12,7 +12,9 @@ dependencies:
     sdk: flutter
 
   # Qiblah Matematical Calculation
-  flutter_qiblah: ^3.0.3
+  flutter_qiblah: ^3.0.4
+  geolocator: ^13.0.1
+
 
   # SVG Image
   flutter_svg: ^2.0.10+1
@@ -20,7 +22,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^4.0.0
+  flutter_lints: ^5.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

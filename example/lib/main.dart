@@ -39,6 +39,7 @@ class MyApp extends StatelessWidget {
                   useDefaultAssets: false,
                   customBackgroundCompass: SvgPicture.asset('assets/test_compass.svg'),
                   customNeedle: SvgPicture.asset('assets/test_needle.svg'),
+                  permissionDeniedMessage: 'Konum izni bekleniyor',
                 ),
                 const SizedBox(height: 30),
                 Divider(),
@@ -47,6 +48,7 @@ class MyApp extends StatelessWidget {
                 const PiriQiblah(
                   useDefaultAssets: true,
                   defaultNeedleColor: Colors.green,
+                  permissionDeniedMessage: 'Konum izni bekleniyor',
                 ),
               ],
             ),

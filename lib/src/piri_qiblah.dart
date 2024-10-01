@@ -11,6 +11,7 @@ import 'package:geolocator/geolocator.dart';
 final class PiriQiblah extends StatefulWidget {
   ///
   const PiriQiblah({
+    required this.permissionDeniedMessage,
     this.useDefaultAssets = true,
     this.customNeedle,
     this.customBackgroundCompass,
@@ -53,12 +54,17 @@ final class PiriQiblah extends StatefulWidget {
   /// Default needle color
   final Color? defaultNeedleColor;
 
+  /// Custom permission denied message.
+  /// If location permission is not given by the user,
+  /// this text is displayed in the widget that appears.
+  final String permissionDeniedMessage;
+
   @override
   // ignore: library_private_types_in_public_api
   _PiriQiblahState createState() => _PiriQiblahState();
 }
 
-class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin {
+class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin, WidgetsBindingObserver {
   bool isAccessGranted = false;
 
   /// Animation properties for needles
@@ -73,9 +79,10 @@ class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin {
   double beginForNeedle = 0;
   double beginForCompass = 0;
 
+  /// initState
   @override
   void initState() {
-    /// Animation for needles
+    /// Animation properties for needles
     _animationControllerForNeedle = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 500),
@@ -85,7 +92,7 @@ class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin {
       end: 360.0,
     ).animate(_animationControllerForNeedle!);
 
-    /// Animation for background  compass view
+    /// Animation properties for background compass
     _animationControllerForBackgroundCompass = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 500),
@@ -94,14 +101,29 @@ class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin {
       begin: 0.0,
       end: 0.0,
     ).animate(_animationControllerForBackgroundCompass!);
+
+    ///
     super.initState();
+
+    /// Control app lifecycle
+    WidgetsBinding.instance.addObserver(this); // Start observing the widget
   }
 
   @override
   void dispose() {
     _animationControllerForNeedle!.dispose();
     _animationControllerForBackgroundCompass!.dispose();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
+  }
+
+  @override
+  Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed) {
+      isAccessGranted = await checkLocationPermissionForQiblah();
+      setState(() {});
+    }
   }
 
   @override
@@ -141,7 +163,7 @@ class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin {
                   }
                   // If there is no error, the compass view is displayed.
                   else {
-                    /// Animation properties for needle view
+                    /// Animation properties set for needle view
                     _animationForNeedle = Tween(
                       begin: beginForNeedle,
                       end: (snapshot.data!.qiblah).toRadians() * -1,
@@ -149,7 +171,7 @@ class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin {
                     beginForNeedle = snapshot.data!.qiblah.toRadians() * -1;
                     _animationControllerForNeedle!.forward(from: 0);
 
-                    /// Animation properties for background compass view
+                    /// Animation properties set for background compass view
                     _animationForBackgroundCompass = Tween(
                       begin: (snapshot.data!.direction).toRadians() * -1,
                       end: 360.0,
@@ -158,7 +180,7 @@ class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin {
                     _animationControllerForBackgroundCompass!.forward(from: 0);
 
                     /// Return the compass view
-                    return _stack();
+                    return _qiblahStack();
                   }
               }
             },
@@ -170,13 +192,9 @@ class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin {
 
   /// Stack view for needle and background compass
   /// If you want to use custom assets, you can pass them as a parameter.
-  Widget _stack() {
+  Widget _qiblahStack() {
     return Column(
       children: [
-        Icon(
-          Icons.navigation,
-          size: (widget.compassSize ?? 300) / 15,
-        ),
         SizedBox(
           height: widget.compassSize ?? 300,
           width: widget.compassSize ?? 300,
@@ -192,6 +210,7 @@ class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin {
   }
 
   /// Needle view
+  ///  Both default and custom assets can be used.
   Widget _qiblahNeedleWidget() {
     return AnimatedBuilder(
       animation: _animationForNeedle!,
@@ -211,6 +230,7 @@ class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin {
   }
 
   /// Background compass view
+  ///  Both default and custom assets can be used.
   Widget _backgroundCompassWidget() {
     return AnimatedBuilder(
       animation: _animationForBackgroundCompass!,
@@ -228,6 +248,7 @@ class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin {
   }
 
   /// Loading indicator
+  /// If you want to use a custom loading indicator, you can pass it as a parameter.
   Widget _loadingIndicator() =>
 
       /// Special loading indicator
@@ -242,7 +263,9 @@ class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin {
             ),
       );
 
-  /// Exception message
+  /// Error Widget
+  /// If there is an error this widget will be shown.
+  /// If you want to use a custom error widget, you can pass it as a parameter.
   Widget _errorWidget() => SizedBox(
         height: (widget.compassSize ?? 300) / 2,
         width: (widget.compassSize ?? 300) / 2,
@@ -258,18 +281,26 @@ class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin {
       );
 
   /// Waiting for permission widget
+  /// If the user does not grant location permission, this widget is displayed.
   Widget _waitingForPermissionWidget() => SizedBox(
         height: (widget.compassSize ?? 300) / 2,
         width: (widget.compassSize ?? 300) / 2,
         child: widget.waitingForPermissionWidget ??
 
             /// Default waiting for permission widget
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SvgPicture.asset(_PiriQiblahAssetPath.defaultWaitingForLocationSvgPath.path),
-                FittedBox(child: const Text('Waiting for permission ...')),
-              ],
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SvgPicture.asset(_PiriQiblahAssetPath.defaultWaitingForLocationSvgPath.path),
+                  FittedBox(
+                    child: Text(
+                      widget.permissionDeniedMessage,
+                      style: TextStyle(color: Colors.grey.shade700),
+                    ),
+                  ),
+                ],
+              ),
             ),
       );
 

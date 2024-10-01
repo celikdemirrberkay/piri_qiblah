@@ -31,7 +31,6 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_svg: ^2.0.10+1
-  flutter_qiblah: ^3.0.3
   piri_qiblah:
     path: ../
 
