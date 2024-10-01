@@ -2,4 +2,5 @@
 
 * Static needle removed.
 * Packages updated
+* The "isAccessGranted" variable is checked in onResume
 
