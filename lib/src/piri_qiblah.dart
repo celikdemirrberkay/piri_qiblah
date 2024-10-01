@@ -64,7 +64,8 @@ final class PiriQiblah extends StatefulWidget {
   _PiriQiblahState createState() => _PiriQiblahState();
 }
 
-class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin, WidgetsBindingObserver {
+class _PiriQiblahState extends State<PiriQiblah>
+    with TickerProviderStateMixin, WidgetsBindingObserver {
   bool isAccessGranted = false;
 
   /// Animation properties for needles
@@ -292,7 +293,8 @@ class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin, 
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  SvgPicture.asset(_PiriQiblahAssetPath.defaultWaitingForLocationSvgPath.path),
+                  SvgPicture.asset(_PiriQiblahAssetPath
+                      .defaultWaitingForLocationSvgPath.path),
                   FittedBox(
                     child: Text(
                       widget.permissionDeniedMessage,
@@ -342,7 +344,8 @@ enum _PiriQiblahAssetPath {
   defaultErrorSvgPath('packages/piri_qiblah/lib/assets/error.svg'),
 
   /// Default waiting for location svg asset paths
-  defaultWaitingForLocationSvgPath('packages/piri_qiblah/lib/assets/waiting_for_location.svg');
+  defaultWaitingForLocationSvgPath(
+      'packages/piri_qiblah/lib/assets/waiting_for_location.svg');
 
   /// Path parameter
   final String path;
