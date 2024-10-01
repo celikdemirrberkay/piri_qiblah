@@ -37,8 +37,7 @@ class MyApp extends StatelessWidget {
                 const Text('Piri Qiblah With Custom Assets'),
                 PiriQiblah(
                   useDefaultAssets: false,
-                  customBackgroundCompass:
-                      SvgPicture.asset('assets/test_compass.svg'),
+                  customBackgroundCompass: SvgPicture.asset('assets/test_compass.svg'),
                   customNeedle: SvgPicture.asset('assets/test_needle.svg'),
                   permissionDeniedMessage: 'Konum izni bekleniyor',
                 ),

@@ -64,8 +64,7 @@ final class PiriQiblah extends StatefulWidget {
   _PiriQiblahState createState() => _PiriQiblahState();
 }
 
-class _PiriQiblahState extends State<PiriQiblah>
-    with TickerProviderStateMixin, WidgetsBindingObserver {
+class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin, WidgetsBindingObserver {
   bool isAccessGranted = false;
 
   /// Animation properties for needles
@@ -90,7 +89,7 @@ class _PiriQiblahState extends State<PiriQiblah>
     );
     _animationForNeedle = Tween<double>(
       begin: 0.0,
-      end: 360.0,
+      end: 0.0,
     ).animate(_animationControllerForNeedle!);
 
     /// Animation properties for background compass
@@ -181,7 +180,7 @@ class _PiriQiblahState extends State<PiriQiblah>
                     _animationControllerForBackgroundCompass!.forward(from: 0);
 
                     /// Return the compass view
-                    return _qiblahStack();
+                    return _qiblahStack(snapshot.data!);
                   }
               }
             },
@@ -193,9 +192,10 @@ class _PiriQiblahState extends State<PiriQiblah>
 
   /// Stack view for needle and background compass
   /// If you want to use custom assets, you can pass them as a parameter.
-  Widget _qiblahStack() {
+  Widget _qiblahStack(QiblahDirection qiblahDirection) {
     return Column(
       children: [
+        _qiblahAngleText(qiblahDirection),
         SizedBox(
           height: widget.compassSize ?? 300,
           width: widget.compassSize ?? 300,
@@ -207,6 +207,22 @@ class _PiriQiblahState extends State<PiriQiblah>
           ),
         ),
       ],
+    );
+  }
+
+  /// Qiblah angle text widget
+  Widget _qiblahAngleText(QiblahDirection qiblahDirection) {
+    return Text(
+      /// Qiblah Angle Text
+      ((qiblahDirection.direction.toInt() - 180) * -1).isNegative
+          ? ((qiblahDirection.direction.toInt() - 180)).toString()
+          : ((qiblahDirection.direction.toInt() - 180) * -1).toString(),
+
+      /// Qiblah Angle Text Style
+      style: TextStyle(
+        color: qiblahDirection.direction.toInt() - 180 == 0 ? Colors.green : Colors.red,
+        fontSize: 20,
+      ),
     );
   }
 
@@ -293,8 +309,7 @@ class _PiriQiblahState extends State<PiriQiblah>
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  SvgPicture.asset(_PiriQiblahAssetPath
-                      .defaultWaitingForLocationSvgPath.path),
+                  SvgPicture.asset(_PiriQiblahAssetPath.defaultWaitingForLocationSvgPath.path),
                   FittedBox(
                     child: Text(
                       widget.permissionDeniedMessage,
@@ -344,8 +359,7 @@ enum _PiriQiblahAssetPath {
   defaultErrorSvgPath('packages/piri_qiblah/lib/assets/error.svg'),
 
   /// Default waiting for location svg asset paths
-  defaultWaitingForLocationSvgPath(
-      'packages/piri_qiblah/lib/assets/waiting_for_location.svg');
+  defaultWaitingForLocationSvgPath('packages/piri_qiblah/lib/assets/waiting_for_location.svg');
 
   /// Path parameter
   final String path;
