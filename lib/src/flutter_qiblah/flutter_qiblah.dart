@@ -12,8 +12,6 @@ import 'package:stream_transform/stream_transform.dart' show CombineLatest;
 /// Get current  location
 /// Get Qiblah direction
 class FlutterQiblah {
-  static const MethodChannel _channel = MethodChannel('ml.medyas.flutter_qiblah');
-
   static final FlutterQiblah _instance = FlutterQiblah._();
 
   Stream<QiblahDirection>? _qiblahStream;
@@ -21,15 +19,6 @@ class FlutterQiblah {
   FlutterQiblah._();
 
   factory FlutterQiblah() => _instance;
-
-  /// Check Android device sensor support
-  static Future<bool?> androidDeviceSensorSupport() async {
-    if (Platform.isAndroid) {
-      return await _channel.invokeMethod("androidSupportSensor");
-    } else {
-      return true;
-    }
-  }
 
   /// Request Location permission, return GeolocationStatus object
   static Future requestPermissions() => Location().requestPermission();
