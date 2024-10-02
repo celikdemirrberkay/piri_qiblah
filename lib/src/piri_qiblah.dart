@@ -1,9 +1,9 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_qiblah/flutter_qiblah.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:geolocator/geolocator.dart';
+import 'package:location/location.dart';
+import 'package:piri_qiblah/src/flutter_qiblah/flutter_qiblah.dart';
 
 /// [PiriQiblah] is a widget package that shows the qibla direction to be used in
 /// "Piri Medya" projects.
@@ -328,18 +328,16 @@ class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin, 
 
   /// Check location permission for qiblah
   Future<bool> checkLocationPermissionForQiblah() async {
-    final permission = await Geolocator.checkPermission();
+    final permission = await Location.instance.hasPermission();
     switch (permission) {
-      case LocationPermission.denied:
+      case PermissionStatus.denied:
         return false;
-      case LocationPermission.deniedForever:
+      case PermissionStatus.deniedForever:
         return false;
-      case LocationPermission.whileInUse:
+      case PermissionStatus.granted:
         return true;
-      case LocationPermission.always:
+      case PermissionStatus.grantedLimited:
         return true;
-      case LocationPermission.unableToDetermine:
-        return false;
     }
   }
 }
