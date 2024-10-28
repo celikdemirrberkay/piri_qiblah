@@ -1,14 +1,11 @@
 import 'dart:async';
-import 'dart:io';
-
-import 'package:flutter/services.dart';
 import 'package:flutter_compass_v2/flutter_compass_v2.dart';
 import 'package:location/location.dart';
-import 'package:piri_qiblah/src/flutter_qiblah/utils.dart';
+import 'package:piri_qiblah/src/qibla_calculation/utils.dart';
+import 'package:piri_qiblah/src/qibla_calculation/qiblah_direction.dart';
 import 'package:stream_transform/stream_transform.dart' show CombineLatest;
 
 /// [FlutterQiblah] is a singleton class that provides assess to compass events,
-/// check for sensor support in Android
 /// Get current  location
 /// Get Qiblah direction
 class FlutterQiblah {
@@ -20,10 +17,10 @@ class FlutterQiblah {
 
   factory FlutterQiblah() => _instance;
 
-  /// Request Location permission, return GeolocationStatus object
-  static Future requestPermissions() => Location().requestPermission();
+  /// Request Location permission, return PermissionStatus object
+  static Future<PermissionStatus> requestPermissions() => Location().requestPermission();
 
-  /// get location status: GPS enabled and the permission status with GeolocationStatus
+  /// Get location status: GPS enabled and the permission status with LocationStatus
   static Future<LocationStatus> checkLocationStatus() async {
     final status = await Location().hasPermission();
     return LocationStatus(status);
@@ -88,18 +85,5 @@ class LocationStatus {
 
   const LocationStatus(
     this.status,
-  );
-}
-
-/// Containing Qiblah, Direction and offset
-class QiblahDirection {
-  final double qiblah;
-  final double direction;
-  final double offset;
-
-  const QiblahDirection(
-    this.qiblah,
-    this.direction,
-    this.offset,
   );
 }

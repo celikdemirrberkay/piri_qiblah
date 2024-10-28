@@ -3,7 +3,8 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:location/location.dart';
-import 'package:piri_qiblah/src/flutter_qiblah/flutter_qiblah.dart';
+import 'package:piri_qiblah/src/qibla_calculation/qibla_calculation.dart';
+import 'package:piri_qiblah/src/qibla_calculation/qiblah_direction.dart';
 
 /// [PiriQiblah] is a widget package that shows the qibla direction to be used in
 /// "Piri Medya" projects.
@@ -11,7 +12,7 @@ import 'package:piri_qiblah/src/flutter_qiblah/flutter_qiblah.dart';
 final class PiriQiblah extends StatefulWidget {
   ///
   const PiriQiblah({
-    required this.permissionDeniedMessage,
+    required this.defaultWidgetPermissionDeniedMessage,
     this.useDefaultAssets = true,
     this.customNeedle,
     this.customBackgroundCompass,
@@ -20,6 +21,7 @@ final class PiriQiblah extends StatefulWidget {
     this.waitingForPermissionWidget,
     this.compassSize,
     this.defaultNeedleColor,
+    this.defaultWidgetErrorText,
     super.key,
   });
 
@@ -54,10 +56,16 @@ final class PiriQiblah extends StatefulWidget {
   /// Default needle color
   final Color? defaultNeedleColor;
 
-  /// Custom permission denied message.
+  /// Custom permission denied message for default permission denied widget.
   /// If location permission is not given by the user,
   /// this text is displayed in the widget that appears.
-  final String permissionDeniedMessage;
+  /// If you don't pass a value, the default value is 'Konum izni bekleniyor...'.
+  final String? defaultWidgetPermissionDeniedMessage;
+
+  /// Custom error message for default error widget.
+  /// If there is an error this text is displayed in the widget that appears.
+  /// If you don't pass a value, the default value is 'Bir hata oluştu'
+  final String? defaultWidgetErrorText;
 
   @override
   // ignore: library_private_types_in_public_api
@@ -65,6 +73,9 @@ final class PiriQiblah extends StatefulWidget {
 }
 
 class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin, WidgetsBindingObserver {
+  /// Location permission bool value for qiblah
+  /// If the location permission is granted, it is set to true,
+  /// otherwise it is set to false.
   bool isAccessGranted = false;
 
   /// Animation properties for needles
@@ -111,6 +122,7 @@ class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin, 
 
   @override
   void dispose() {
+    /// Disposing animation controllers and removing the observer
     _animationControllerForNeedle!.dispose();
     _animationControllerForBackgroundCompass!.dispose();
     WidgetsBinding.instance.removeObserver(this);
@@ -120,7 +132,11 @@ class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin, 
   @override
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
     super.didChangeAppLifecycleState(state);
+
+    /// If the app is resumed, check the location permission for qiblah
+    /// User may have changed the location permission settings
     if (state == AppLifecycleState.resumed) {
+      /// Checking again the location permission for qiblah
       isAccessGranted = await checkLocationPermissionForQiblah();
       setState(() {});
     }
@@ -256,7 +272,7 @@ class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin, 
         child: SizedBox.expand(
           child: widget.useDefaultAssets
               ? SvgPicture.asset(
-                  _PiriQiblahAssetPath.defaultCompassSvgPath.path,
+                  _DefaultAssetPaths.defaultCompassSvgPath.path,
                 )
               : widget.customBackgroundCompass,
         ),
@@ -270,14 +286,12 @@ class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin, 
 
       /// Special loading indicator
       SizedBox(
-        height: (widget.compassSize ?? 300) / 5,
-        width: (widget.compassSize ?? 300) / 5,
+        height: (widget.compassSize ?? 300),
+        width: (widget.compassSize ?? 300),
         child: widget.loadingIndicator ??
 
             /// Default loading indicator
-            const Center(
-              child: CircularProgressIndicator(),
-            ),
+            const Center(child: CircularProgressIndicator()),
       );
 
   /// Error Widget
@@ -291,8 +305,8 @@ class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin, 
             /// Default error widget
             Column(
               children: [
-                SvgPicture.asset(_PiriQiblahAssetPath.defaultErrorSvgPath.path),
-                const Text('Something went wrong!'),
+                SvgPicture.asset(_DefaultAssetPaths.defaultErrorSvgPath.path),
+                Text(widget.defaultWidgetErrorText ?? 'Bir hata oluştu'),
               ],
             ),
       );
@@ -309,10 +323,10 @@ class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin, 
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  SvgPicture.asset(_PiriQiblahAssetPath.defaultWaitingForLocationSvgPath.path),
+                  SvgPicture.asset(_DefaultAssetPaths.defaultWaitingForLocationSvgPath.path),
                   FittedBox(
                     child: Text(
-                      widget.permissionDeniedMessage,
+                      widget.defaultWidgetPermissionDeniedMessage ?? 'Konum izni bekleniyor...',
                       style: TextStyle(color: Colors.grey.shade700),
                     ),
                   ),
@@ -349,7 +363,7 @@ extension AngleConversion on double {
 }
 
 /// Packages default asset paths
-enum _PiriQiblahAssetPath {
+enum _DefaultAssetPaths {
   /// Default compass svg asset paths
   defaultCompassSvgPath('packages/piri_qiblah/lib/assets/compass.svg'),
 
@@ -362,5 +376,5 @@ enum _PiriQiblahAssetPath {
   /// Path parameter
   final String path;
 
-  const _PiriQiblahAssetPath(this.path);
+  const _DefaultAssetPaths(this.path);
 }
