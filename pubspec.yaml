@@ -11,9 +11,10 @@ dependencies:
   flutter:
     sdk: flutter
 
-  # Qiblah Matematical Calculation
-  flutter_qiblah: ^3.0.4
-  geolocator: ^13.0.1
+  stream_transform: ^2.1.0
+  vector_math: ^2.1.4
+  flutter_compass_v2: ^1.0.3
+  location: ^7.0.0
 
 
   # SVG Image
