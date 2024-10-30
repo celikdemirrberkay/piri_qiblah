@@ -249,15 +249,32 @@ class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin, 
       animation: _animationForNeedle!,
       builder: (context, child) => Transform.rotate(
         angle: _animationForNeedle!.value,
-        child: Center(
-          child: widget.useDefaultAssets
-              ? Icon(
+        child: widget.useDefaultAssets == true
+            ? Center(
+                child: Icon(
                   Icons.navigation,
                   size: (widget.compassSize ?? 300) / 3,
                   color: widget.defaultNeedleColor,
-                )
-              : widget.customNeedle,
-        ),
+                ),
+              )
+            : Column(
+                children: [
+                  Spacer(flex: 20),
+                  Expanded(
+                    flex: 29,
+                    child: Center(
+                      child: widget.useDefaultAssets
+                          ? Icon(
+                              Icons.navigation,
+                              size: (widget.compassSize ?? 300) / 3,
+                              color: widget.defaultNeedleColor,
+                            )
+                          : widget.customNeedle,
+                    ),
+                  ),
+                  Spacer(flex: 50)
+                ],
+              ),
       ),
     );
   }
@@ -274,7 +291,7 @@ class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin, 
               ? SvgPicture.asset(
                   _DefaultAssetPaths.defaultCompassSvgPath.path,
                 )
-              : widget.customBackgroundCompass,
+              : FittedBox(child: widget.customBackgroundCompass),
         ),
       ),
     );
