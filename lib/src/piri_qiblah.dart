@@ -198,7 +198,7 @@ class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin, 
                     /// Animation properties set for background compass view
                     _animationForBackgroundCompass = Tween(
                       begin: (snapshot.data!.direction).toRadians() * -1,
-                      end: 360.0,
+                      end: 0.0,
                     ).animate(_animationControllerForBackgroundCompass!);
                     beginForCompass = snapshot.data!.direction.toRadians() * -1;
                     _animationControllerForBackgroundCompass!.forward(from: 0);
@@ -277,7 +277,7 @@ class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin, 
                     child: SizedBox.expand(
                       child: Column(
                         children: [
-                          Expanded(flex: 51, child: FittedBox(child: widget.customNeedle!)),
+                          Expanded(flex: 51, child: widget.customNeedle!),
                           Spacer(flex: 49),
                         ],
                       ),
