@@ -12,7 +12,7 @@ import 'package:piri_qiblah/src/qibla_calculation/qiblah_direction.dart';
 final class PiriQiblah extends StatefulWidget {
   ///
   const PiriQiblah({
-    required this.defaultWidgetPermissionDeniedMessage,
+    this.defaultWidgetPermissionDeniedMessage,
     this.useDefaultAssets = true,
     this.customNeedle,
     this.customBackgroundCompass,
@@ -22,6 +22,8 @@ final class PiriQiblah extends StatefulWidget {
     this.compassSize,
     this.defaultNeedleColor,
     this.defaultWidgetErrorText,
+    this.customSpaceBetweenCompassAndAngleText,
+    this.angleTextStyle,
     super.key,
   });
 
@@ -66,6 +68,12 @@ final class PiriQiblah extends StatefulWidget {
   /// If there is an error this text is displayed in the widget that appears.
   /// If you don't pass a value, the default value is 'Bir hata oluştu'
   final String? defaultWidgetErrorText;
+
+  /// Custom space between compass and angle text
+  final double? customSpaceBetweenCompassAndAngleText;
+
+  /// Custom angle text style
+  final TextStyle? angleTextStyle;
 
   @override
   // ignore: library_private_types_in_public_api
@@ -212,6 +220,7 @@ class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin, 
     return Column(
       children: [
         _qiblahAngleText(qiblahDirection),
+        SizedBox(height: widget.customSpaceBetweenCompassAndAngleText ?? 5),
         SizedBox(
           height: widget.compassSize ?? 300,
           width: widget.compassSize ?? 300,
@@ -235,7 +244,7 @@ class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin, 
           : ((qiblahDirection.direction.toInt() - 180) * -1).toString(),
 
       /// Qiblah Angle Text Style
-      style: TextStyle(
+      style: widget.angleTextStyle?.copyWith(
         color: qiblahDirection.direction.toInt() - 180 == 0 ? Colors.green : Colors.red,
         fontSize: 20,
       ),
@@ -249,15 +258,31 @@ class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin, 
       animation: _animationForNeedle!,
       builder: (context, child) => Transform.rotate(
         angle: _animationForNeedle!.value,
-        child: Center(
-          child: widget.useDefaultAssets
-              ? Icon(
+        child: widget.useDefaultAssets == true
+            ? Center(
+                child: Icon(
                   Icons.navigation,
                   size: (widget.compassSize ?? 300) / 3,
                   color: widget.defaultNeedleColor,
-                )
-              : widget.customNeedle,
-        ),
+                ),
+              )
+            : widget.useDefaultAssets
+                ? Center(
+                    child: Icon(
+                      Icons.navigation,
+                      color: widget.defaultNeedleColor,
+                    ),
+                  )
+                : Center(
+                    child: SizedBox.expand(
+                      child: Column(
+                        children: [
+                          Expanded(flex: 51, child: FittedBox(child: widget.customNeedle!)),
+                          Spacer(flex: 49),
+                        ],
+                      ),
+                    ),
+                  ),
       ),
     );
   }
@@ -269,12 +294,14 @@ class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin, 
       animation: _animationForBackgroundCompass!,
       builder: (context, child) => Transform.rotate(
         angle: _animationForBackgroundCompass!.value,
-        child: SizedBox.expand(
+        child: SizedBox(
+          height: widget.compassSize ?? 300,
+          width: widget.compassSize ?? 300,
           child: widget.useDefaultAssets
               ? SvgPicture.asset(
                   _DefaultAssetPaths.defaultCompassSvgPath.path,
                 )
-              : widget.customBackgroundCompass,
+              : widget.customBackgroundCompass!,
         ),
       ),
     );
