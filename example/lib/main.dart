@@ -32,25 +32,30 @@ class MyApp extends StatelessWidget {
         appBar: AppBar(title: const Text('Piri Qiblah')),
         body: SafeArea(
           child: SizedBox.expand(
-            child: Column(
-              children: [
-                const Text('Piri Qiblah With Custom Assets'),
-                PiriQiblah(
-                  useDefaultAssets: false,
-                  customBackgroundCompass: SvgPicture.asset('assets/test_compass.svg'),
-                  customNeedle: SvgPicture.asset('assets/test_needle.svg'),
-                  defaultWidgetPermissionDeniedMessage: 'Konum izni bekleniyor',
-                ),
-                const SizedBox(height: 30),
-                Divider(),
-                const SizedBox(height: 30),
-                const Text('Piri Qiblah With Default Assets'),
-                const PiriQiblah(
-                  useDefaultAssets: true,
-                  defaultNeedleColor: Colors.green,
-                  defaultWidgetPermissionDeniedMessage: 'Konum izni bekleniyor',
-                ),
-              ],
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  const Text('Piri Qiblah With Custom Assets'),
+                  PiriQiblah(
+                    defaultWidgetPermissionDeniedMessage: 'Konum izni bekleniyor',
+                    useDefaultAssets: false,
+                    customBackgroundCompass: SvgPicture.asset('assets/compass.svg'),
+                    customNeedle: SvgPicture.asset('assets/test_needle.svg'),
+                    compassSize: 300,
+                    angleTextStyle: TextStyle(),
+                    customSpaceBetweenCompassAndAngleText: 40,
+                  ),
+                  const SizedBox(height: 30),
+                  Divider(),
+                  const SizedBox(height: 30),
+                  const Text('Piri Qiblah With Default Assets'),
+                  const PiriQiblah(
+                    useDefaultAssets: true,
+                    defaultNeedleColor: Colors.green,
+                    defaultWidgetPermissionDeniedMessage: 'Konum izni bekleniyor',
+                  ),
+                ],
+              ),
             ),
           ),
         ),
