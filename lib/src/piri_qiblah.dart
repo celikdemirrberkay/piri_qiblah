@@ -12,18 +12,18 @@ import 'package:piri_qiblah/src/qibla_calculation/qiblah_direction.dart';
 final class PiriQiblah extends StatefulWidget {
   ///
   const PiriQiblah({
-    this.defaultWidgetPermissionDeniedMessage,
-    this.useDefaultAssets = true,
+    required this.angleTextStyle,
+    required this.useDefaultAssets,
+    this.compassSize,
+    this.customPermissionDeniedMessage,
     this.customNeedle,
     this.customBackgroundCompass,
-    this.loadingIndicator,
-    this.specialErrorWidget,
-    this.waitingForPermissionWidget,
-    this.compassSize,
+    this.customWaitingForPermissionWidget,
+    this.customSpaceBetweenCompassAndAngleText,
+    this.customLoadingIndicator,
+    this.customErrorWidget,
     this.defaultNeedleColor,
     this.defaultWidgetErrorText,
-    this.customSpaceBetweenCompassAndAngleText,
-    this.angleTextStyle,
     super.key,
   });
 
@@ -40,16 +40,16 @@ final class PiriQiblah extends StatefulWidget {
   /// Loading indicator view
   /// While the stream is loading, the value you give appears on the screen.
   /// If null is returned, default loading indicator is used.
-  final Widget? loadingIndicator;
+  final Widget? customLoadingIndicator;
 
   /// Error  widget
   /// While the stream is on error, the value you give appears on the screen.
   /// If null is returned, default text is used.
-  final Widget? specialErrorWidget;
+  final Widget? customErrorWidget;
 
   /// Widget to be displayed while waiting for permission.
   /// You can customize with this parameter
-  final Widget? waitingForPermissionWidget;
+  final Widget? customWaitingForPermissionWidget;
 
   /// The height of the widget, whether custom or default.
   /// If you don't pass a value, the default value is 300.
@@ -62,7 +62,7 @@ final class PiriQiblah extends StatefulWidget {
   /// If location permission is not given by the user,
   /// this text is displayed in the widget that appears.
   /// If you don't pass a value, the default value is 'Konum izni bekleniyor...'.
-  final String? defaultWidgetPermissionDeniedMessage;
+  final String? customPermissionDeniedMessage;
 
   /// Custom error message for default error widget.
   /// If there is an error this text is displayed in the widget that appears.
@@ -246,7 +246,6 @@ class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin, 
       /// Qiblah Angle Text Style
       style: widget.angleTextStyle?.copyWith(
         color: qiblahDirection.direction.toInt() - 180 == 0 ? Colors.green : Colors.red,
-        fontSize: 20,
       ),
     );
   }
@@ -315,10 +314,10 @@ class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin, 
       SizedBox(
         height: (widget.compassSize ?? 300),
         width: (widget.compassSize ?? 300),
-        child: widget.loadingIndicator ??
+        child: widget.customLoadingIndicator ??
 
             /// Default loading indicator
-            const Center(child: CircularProgressIndicator()),
+            const Center(child: CircularProgressIndicator.adaptive()),
       );
 
   /// Error Widget
@@ -327,7 +326,7 @@ class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin, 
   Widget _errorWidget() => SizedBox(
         height: (widget.compassSize ?? 300) / 2,
         width: (widget.compassSize ?? 300) / 2,
-        child: widget.specialErrorWidget ??
+        child: widget.customErrorWidget ??
 
             /// Default error widget
             Column(
@@ -343,7 +342,7 @@ class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin, 
   Widget _waitingForPermissionWidget() => SizedBox(
         height: (widget.compassSize ?? 300) / 2,
         width: (widget.compassSize ?? 300) / 2,
-        child: widget.waitingForPermissionWidget ??
+        child: widget.customWaitingForPermissionWidget ??
 
             /// Default waiting for permission widget
             Center(
@@ -353,7 +352,7 @@ class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin, 
                   SvgPicture.asset(_DefaultAssetPaths.defaultWaitingForLocationSvgPath.path),
                   FittedBox(
                     child: Text(
-                      widget.defaultWidgetPermissionDeniedMessage ?? 'Konum izni bekleniyor...',
+                      widget.customPermissionDeniedMessage ?? 'Konum izni bekleniyor...',
                       style: TextStyle(color: Colors.grey.shade700),
                     ),
                   ),
