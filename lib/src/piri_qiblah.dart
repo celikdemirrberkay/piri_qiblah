@@ -274,8 +274,8 @@ class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin, 
                     child: SizedBox.expand(
                       child: Column(
                         children: [
-                          Expanded(flex: 51, child: widget.customNeedle!),
-                          Spacer(flex: 49),
+                          Expanded(flex: 58, child: widget.customNeedle!),
+                          Spacer(flex: 42),
                         ],
                       ),
                     ),
