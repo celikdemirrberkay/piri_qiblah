@@ -243,7 +243,7 @@ class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin, 
 
       /// Qiblah Angle Text Style
       style: widget.angleTextStyle?.copyWith(
-        color: qiblahDirection.direction.toInt() - 180 == 0 ? Colors.green : Colors.red,
+        color: qiblahDirection.direction.toInt() - 155 == 0 ? Colors.green : Colors.red,
       ),
     );
   }
