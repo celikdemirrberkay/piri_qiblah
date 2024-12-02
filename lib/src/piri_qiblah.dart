@@ -239,7 +239,7 @@ class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin, 
   Widget _qiblahAngleText(QiblahDirection qiblahDirection) {
     return Text(
       /// Qiblah Angle Text
-      ((qiblahDirection.direction.toInt() - 180) * -1).isNegative ? '${((qiblahDirection.direction.toInt() - 180))}°' : '${((qiblahDirection.direction.toInt() - 180) * -1)}°',
+      ((qiblahDirection.direction.toInt() - 155) * -1).isNegative ? '${((qiblahDirection.direction.toInt() - 155))}°' : '${((qiblahDirection.direction.toInt() - 155) * -1)}°',
 
       /// Qiblah Angle Text Style
       style: widget.angleTextStyle?.copyWith(
