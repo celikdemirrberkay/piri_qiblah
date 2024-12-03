@@ -237,13 +237,22 @@ class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin, 
 
   /// Qiblah angle text widget
   Widget _qiblahAngleText(QiblahDirection qiblahDirection) {
-    return Text(
-      /// Qiblah Angle Text
-      ((qiblahDirection.direction.toInt() - 155) * -1).isNegative ? '${((qiblahDirection.direction.toInt() - 155))}°' : '${((qiblahDirection.direction.toInt() - 155) * -1)}°',
+    // Calculate the angle between the qiblah direction and the north direction
+    double adjustedAngle = (qiblahDirection.direction - 180 + 28.3);
 
-      /// Qiblah Angle Text Style
+    // Normalize angle between 0 and 360
+    adjustedAngle = (adjustedAngle + 360) % 360;
+
+    // Normalize angle between -180 and 180
+    double normalizedAngle = adjustedAngle > 180 ? adjustedAngle - 360 : adjustedAngle;
+
+    // Pozitive angle value
+    int displayAngle = normalizedAngle.abs().toInt();
+
+    return Text(
+      '$displayAngle°',
       style: widget.angleTextStyle?.copyWith(
-        color: qiblahDirection.direction.toInt() - 155 == 0 ? Colors.green : Colors.red,
+        color: displayAngle == 0 ? Colors.green : Colors.red,
       ),
     );
   }
