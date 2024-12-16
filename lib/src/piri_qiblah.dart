@@ -227,7 +227,7 @@ class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin, 
           child: Stack(
             children: [
               _backgroundCompassWidget(),
-              _qiblahNeedleWidget(),
+              _qiblahNeedleWidget(qiblahDirection),
             ],
           ),
         ),
@@ -259,11 +259,22 @@ class _PiriQiblahState extends State<PiriQiblah> with TickerProviderStateMixin, 
 
   /// Needle view
   ///  Both default and custom assets can be used.
-  Widget _qiblahNeedleWidget() {
+  Widget _qiblahNeedleWidget(QiblahDirection qiblahDirection) {
+    // Calculate the angle between the qiblah direction and the north direction
+    double adjustedAngle = (qiblahDirection.direction - 180 + 28.3);
+
+    // Normalize angle between 0 and 360
+    adjustedAngle = (adjustedAngle + 360) % 360;
+
+    // Normalize angle between -180 and 180
+    double normalizedAngle = adjustedAngle > 180 ? adjustedAngle - 360 : adjustedAngle;
+
+    // Pozitive angle value
+    int displayAngle = normalizedAngle.abs().toInt();
     return AnimatedBuilder(
       animation: _animationForNeedle!,
       builder: (context, child) => Transform.rotate(
-        angle: _animationForNeedle!.value,
+        angle: displayAngle == 0 ? 0 : _animationForNeedle!.value,
         child: widget.useDefaultAssets == true
             ? Center(
                 child: Icon(
